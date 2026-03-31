@@ -68,7 +68,7 @@ public:
 
 private:
 
-	float MoveSpeed;
-	float TurnSpeed;
+	float MoveInput;
+	float TurnInput;
 
 };
