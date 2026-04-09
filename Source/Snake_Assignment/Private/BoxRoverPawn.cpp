@@ -74,12 +74,18 @@ void ABoxRoverPawn::Tick(float DeltaTime)
 	{
 		AddActorLocalRotation(FRotator(0.0f, TurnInput * TurnSpeed * DeltaTime, 0.0f));
 	}
+	if (FMath::IsNearlyZero(MoveInput))
+	{
+		const FVector Delta = GetActorForwardVector() * MoveSpeed * DeltaTime;
+		AddActorWorldOffset(Delta, true);
+	}
+	
 
-	if (!FMath::IsNearlyZero(MoveInput))
+	/*if (!FMath::IsNearlyZero(MoveInput))
 	{
 		const FVector Delta = GetActorForwardVector() * MoveInput * MoveSpeed * DeltaTime;
 		AddActorWorldOffset(Delta, true);
-	}
+	}*/
 
 }
 
