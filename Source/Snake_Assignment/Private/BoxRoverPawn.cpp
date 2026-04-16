@@ -35,6 +35,7 @@ ABoxRoverPawn::ABoxRoverPawn()
 	SpringArm->bInheritPitch = false;
 	SpringArm->bInheritRoll = false;
 	SpringArm->bInheritYaw = false;
+	SpringArm->bEnableCameraLag = false;
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
