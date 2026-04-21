@@ -1,6 +1,8 @@
 // GridGeneratorISM.cpp
 
 #include "GridGenerator_ISM.h"
+#include "NavigationSystem.h"
+#include "NavAreas/NavArea_Null.h"
 
 AGridGeneratorISM::AGridGeneratorISM()
 {
@@ -18,10 +20,16 @@ void AGridGeneratorISM::BeginPlay()
 {
     Super::BeginPlay();
 
-	GenerateGrid();
-    for (int i = 0; i < 6; i++)
+    GenerateGrid();
+    UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+    if (NavSys)
     {
-        SpawnRandomActor();
+        NavSys->Build();
+    }
+
+    for (int i = FoodAmount; i < MaxFoodAmount; i++)
+    {
+        SpawnFoodOnNavMesh();
     }
 }
 
@@ -29,7 +37,12 @@ void AGridGeneratorISM::OnConstruction(const FTransform& Transform)
 {
     Super::OnConstruction(Transform);
 
-    GenerateGrid();
+	GenerateGrid();
+}
+
+void AGridGeneratorISM::AddFoodCount()
+{
+	FoodAmount++;
 }
 
 void AGridGeneratorISM::GenerateGrid()
@@ -39,10 +52,14 @@ void AGridGeneratorISM::GenerateGrid()
     // Assign meshes
     FloorISM->SetStaticMesh(FloorMesh);
     WallISM->SetStaticMesh(WallMesh);
+	FloorISM->SetCanEverAffectNavigation(true);
+	WallISM->SetCanEverAffectNavigation(false);
+	WallISM->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	WallISM->SetCollisionResponseToAllChannels(ECR_Block);
 
     // Clear old instances (important when editing in editor)
-    FloorISM->ClearInstances();
-    WallISM->ClearInstances();
+	FloorISM->ClearInstances();
+	WallISM->ClearInstances();
 	FloorPositions.Empty();
 
     for (int32 x = 0; x < GridWidth; x++)
@@ -62,29 +79,62 @@ void AGridGeneratorISM::GenerateGrid()
             }
             else
             {
-                FloorISM->AddInstance(Transform);
+                FVector Center(GridWidth / 2, GridHeight / 2, 0);
 
-				FloorPositions.Add(Location * 2);
+                float SafeRadiusWidth = 8;
+				float SafeRadiusHeight = 5;
+
+                bool bNearCenter =
+                    FMath::Abs(x - GridWidth / 2) < SafeRadiusWidth &&
+                    FMath::Abs(y - GridHeight / 2) < SafeRadiusHeight;
+
+                if(!bNearCenter && FMath::FRand() < ObstacleChance)
+                {
+                    WallISM->AddInstance(Transform);
+				}
+                else 
+                {
+                    FloorISM->AddInstance(Transform);
+                    FloorPositions.Add(Location * 2);
+                }
             }
         }
     }
 }
 
-void AGridGeneratorISM::SpawnRandomActor()
+void AGridGeneratorISM::SpawnFoodOnNavMesh()
 {
-    if (!SpawnActorClass || FloorPositions.Num() == 0) return;
-	int32 RandomIndex = FMath::RandRange(0, FloorPositions.Num() - 1);
-	//FVector SpawnHit = FMath::RandPointInBox(FBox(FVector(1, 1, 0), FVector(GridWidth * TileSize * 2 - 200, GridHeight * TileSize * 2 - 200, 0)));
-	FVector SpawnLocation = FloorPositions[RandomIndex];
+    if (!SpawnActorClass) return;
+    UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+    if (!NavSys) return;
+    FNavLocation RandomPoint;
+    bool bFound = NavSys->GetRandomPoint(RandomPoint);
+    if (bFound)
+    {
+        GetWorld()->SpawnActor<AActor>(
+            SpawnActorClass,
+            RandomPoint.Location,
+            FRotator::ZeroRotator
+        );
+    }
+}
 
-    // Optional: lift slightly above ground
-    //SpawnLocation.Z += 50.f;
-
-    GetWorld()->SpawnActor<AActor>(
-        SpawnActorClass,
-        SpawnLocation,
-        FRotator::ZeroRotator
-    );
+void AGridGeneratorISM::RePositionFoodOnNavMesh(AActor* Actor) 
+{
+	if (!SpawnActorClass) return;
+    UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+    if (!NavSys) return;
+    FNavLocation RandomPoint;
+    bool bFound = NavSys->GetRandomPoint(RandomPoint);
+	if (bFound)
+        {
+        // Assuming you have a reference to the food actor you want to reposition
+        AActor* FoodActor = Actor; // Replace with your actual food actor reference
+        if (FoodActor)
+        {
+            FoodActor->SetActorLocation(RandomPoint.Location);
+        }
+	}
 }
 
 void AGridGeneratorISM::RePositionActor(AActor* Actor)

@@ -30,6 +30,9 @@ public:
     float TileSize = 100.f;
 
     UPROPERTY(EditAnywhere, Category = "Grid")
+	float ObstacleChance = 0.2f;
+
+    UPROPERTY(EditAnywhere, Category = "Grid")
     UStaticMesh* FloorMesh;
 
     UPROPERTY(EditAnywhere, Category = "Grid")
@@ -40,6 +43,13 @@ public:
 
     UPROPERTY(EditAnywhere)
 	TArray<FVector> FloorPositions;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int FoodAmount = 0;
+
+	UPROPERTY(EditAnywhere)
+    int MaxFoodAmount = 6;
+
     
 private:
     UPROPERTY(EditAnywhere)
@@ -50,7 +60,11 @@ private:
 
     void GenerateGrid();
     UFUNCTION(BlueprintCallable)
-	void SpawnRandomActor();
+	void SpawnFoodOnNavMesh();
     UFUNCTION(BlueprintCallable)
+	void RePositionFoodOnNavMesh(AActor* Actor);
+    UFUNCTION(BlueprintCallable)
+	void AddFoodCount();
+	UFUNCTION(BlueprintCallable)
 	void RePositionActor(AActor* Actor);
 };
