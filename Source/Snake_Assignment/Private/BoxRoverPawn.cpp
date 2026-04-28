@@ -18,7 +18,7 @@
 ABoxRoverPawn::ABoxRoverPawn()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	//PrimaryActorTick.bCanEverTick = true;
 
 	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
 	SetRootComponent(CollisionSphere);
@@ -40,7 +40,9 @@ ABoxRoverPawn::ABoxRoverPawn()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 
-	AutoPossessPlayer = EAutoReceiveInput::Player0;
+	//AutoPossessPlayer = EAutoReceiveInput::Player0;
+
+	bUseControllerRotationYaw = true;
 
 
 }
@@ -50,7 +52,7 @@ void ABoxRoverPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	/*if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
 		if (ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer())
 		{
@@ -63,7 +65,7 @@ void ABoxRoverPawn::BeginPlay()
 				
 			}
 		}
-	}
+	}*/
 	
 }
 
@@ -71,7 +73,7 @@ void ABoxRoverPawn::BeginPlay()
 void ABoxRoverPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (!FMath::IsNearlyZero(TurnInput))
+	/*if (!FMath::IsNearlyZero(TurnInput))
 	{
 		AddActorLocalRotation(FRotator(0.0f, TurnInput * TurnSpeed * DeltaTime, 0.0f));
 	}
@@ -79,7 +81,7 @@ void ABoxRoverPawn::Tick(float DeltaTime)
 	{
 		const FVector Delta = GetActorForwardVector() * MoveSpeed * DeltaTime;
 		AddActorWorldOffset(Delta, true);
-	}
+	}*/
 	
 
 	/*if (!FMath::IsNearlyZero(MoveInput))
@@ -91,34 +93,5 @@ void ABoxRoverPawn::Tick(float DeltaTime)
 }
 
 // Called to bind functionality to input
-void ABoxRoverPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
-	{
-		if (IA_Move)
-		{
-			EnhancedInputComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &ABoxRoverPawn::Move);
-			EnhancedInputComponent->BindAction(IA_Move, ETriggerEvent::Completed, this, &ABoxRoverPawn::Move);
-		}
-		if (IA_Turn)
-		{
-			EnhancedInputComponent->BindAction(IA_Turn, ETriggerEvent::Triggered, this, &ABoxRoverPawn::Turn);
-			EnhancedInputComponent->BindAction(IA_Turn, ETriggerEvent::Completed, this, &ABoxRoverPawn::Turn);
-		}
-		
-	}
-
-}
-
-void ABoxRoverPawn::Move(const FInputActionValue& Value)
-{
-	MoveInput = Value.Get<float>();
-}
-
-void ABoxRoverPawn::Turn(const FInputActionValue& Value)
-{
-	TurnInput = Value.Get<float>();
-}
 
