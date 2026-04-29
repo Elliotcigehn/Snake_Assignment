@@ -50,6 +50,10 @@ public:
 	UPROPERTY(EditAnywhere)
     int MaxFoodAmount = 6;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Score = 0;
+    
+
     
 private:
     UPROPERTY(EditAnywhere)
@@ -67,4 +71,6 @@ private:
 	void AddFoodCount();
 	UFUNCTION(BlueprintCallable)
 	void RePositionActor(AActor* Actor);
+	UFUNCTION(BlueprintCallable)
+    void SetScore(int NewScore);
 };

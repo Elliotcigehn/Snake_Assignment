@@ -61,6 +61,7 @@ void AGridGeneratorISM::GenerateGrid()
 	FloorISM->ClearInstances();
 	WallISM->ClearInstances();
 	FloorPositions.Empty();
+	Score = 0;
 
     for (int32 x = 0; x < GridWidth; x++)
     {
@@ -121,6 +122,8 @@ void AGridGeneratorISM::SpawnFoodOnNavMesh()
 
 void AGridGeneratorISM::RePositionFoodOnNavMesh(AActor* Actor) 
 {
+	Score++;
+	SetScore(Score);
 	if (!SpawnActorClass) return;
     UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
     if (!NavSys) return;
@@ -151,5 +154,10 @@ void AGridGeneratorISM::RePositionActor(AActor* Actor)
     {
         ActorToMove->SetActorLocation(NewLocation);
     }
+}
+
+void AGridGeneratorISM::SetScore(int NewScore)
+{
+    Score = NewScore;
 }
 
