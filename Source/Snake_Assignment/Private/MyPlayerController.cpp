@@ -56,6 +56,17 @@ void AMyPlayerController::SetupInputComponent()
 			EnhancedInputComponent->BindAction(IA_Turn, ETriggerEvent::Triggered, this, &AMyPlayerController::Turn);
 			EnhancedInputComponent->BindAction(IA_Turn, ETriggerEvent::Completed, this, &AMyPlayerController::Turn);
 		}
+
+		if (IA_TogglePause)
+		{
+			EnhancedInputComponent->BindAction(IA_TogglePause, ETriggerEvent::Triggered, this, &AMyPlayerController::TogglePause);
+		}
+
+		if (IA_RestartLevel)
+		{
+			EnhancedInputComponent->BindAction(IA_RestartLevel, ETriggerEvent::Triggered, this, &AMyPlayerController::RestartLevel);
+			EnhancedInputComponent->BindAction(IA_RestartLevel, ETriggerEvent::Completed, this, &AMyPlayerController::RestartLevel);
+		}
 		
 		if (IA_SpawnPlayer)
 		{
@@ -69,5 +80,28 @@ void AMyPlayerController::SetupInputComponent()
 void AMyPlayerController::Turn(const FInputActionValue& Value)
 {
 	TurnInput = Value.Get<float>();
+}
+
+void AMyPlayerController::TogglePause()
+{
+	bool bIsPaused = UGameplayStatics::IsGamePaused(this);
+
+	bShowMouseCursor = !bIsPaused;
+
+	if (bIsPaused)
+	{
+		UGameplayStatics::SetGamePaused(this, false);
+		SetInputMode(FInputModeGameOnly());
+	}
+	else
+	{
+		UGameplayStatics::SetGamePaused(this, true);
+		SetInputMode(FInputModeUIOnly());
+	}
+}
+
+void AMyPlayerController::RestartLevel()
+{
+	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
 }
 

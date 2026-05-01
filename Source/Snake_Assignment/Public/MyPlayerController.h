@@ -23,6 +23,10 @@ public:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
 
+	void RestartLevel();
+
+	void TogglePause();
+
 protected:
 	void Turn(const FInputActionValue& Value);
 	void SpawnPlayer(const FInputActionValue& Value);
@@ -41,6 +45,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* IA_SpawnPlayer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* IA_TogglePause;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* IA_RestartLevel;
 
 private:
 	float TurnInput;
