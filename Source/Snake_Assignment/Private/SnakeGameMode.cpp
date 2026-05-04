@@ -5,6 +5,12 @@
 #include "GameFramework/PlayerController.h"
 #include "SnakeGameState.h" 
 
+ASnakeGameMode::ASnakeGameMode()
+{
+    // Set default pawn class to none since we will spawn manually
+    DefaultPawnClass = nullptr;
+}
+
 void ASnakeGameMode::BeginPlay()
 {
     Super::BeginPlay();
@@ -22,6 +28,22 @@ void ASnakeGameMode::BeginPlay()
         StartCoop();
         break;
     }
+}
+
+AActor* ASnakeGameMode::FindPlayerStartByTag(FName Tag)
+{
+    TArray<AActor*> PlayerStarts;
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), PlayerStarts);
+
+    for (AActor* Start : PlayerStarts)
+    {
+        if (Start->ActorHasTag(Tag))
+        {
+            return Start;
+        }
+    }
+
+    return nullptr;
 }
 
 void ASnakeGameMode::StartSinglePlayer()
@@ -45,40 +67,34 @@ void ASnakeGameMode::StartSinglePlayer()
 
 void ASnakeGameMode::StartCoop()
 {
-    TArray<AActor*> PlayerStarts;
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), PlayerStarts);
-
-    if (PlayerStarts.Num() < 2) return;
-
-    // Create second player
     UGameplayStatics::CreatePlayer(GetWorld(), 1, true);
 
-    // Spawn snakes
+    AActor* Start1 = FindPlayerStartByTag("P1");
+    AActor* Start2 = FindPlayerStartByTag("P2");
+
+    if (!Start1 || !Start2)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("PlayerStart tags missing!"));
+        return;
+    }
+
     APawn* Snake1 = GetWorld()->SpawnActor<APawn>(
         SnakePawnClass,
-        PlayerStarts[0]->GetActorLocation(),
-        PlayerStarts[0]->GetActorRotation()
+        Start1->GetActorLocation(),
+        Start1->GetActorRotation()
     );
-
     APawn* Snake2 = GetWorld()->SpawnActor<APawn>(
         SnakePawnClass,
-        PlayerStarts[1]->GetActorLocation(),
-        PlayerStarts[1]->GetActorRotation()
+        Start2->GetActorLocation(),
+        Start2->GetActorRotation()
     );
-
-    // Possess
+    
     APlayerController* PC0 = UGameplayStatics::GetPlayerController(this, 0);
-    APlayerController* PC1 = UGameplayStatics::GetPlayerController(this, 1);
+	APlayerController* PC1 = UGameplayStatics::GetPlayerController(this, 1);
 
-    if (PC0 && Snake1)
-    {
-        PC0->Possess(Snake1);
-    }
 
-    if (PC1 && Snake2)
-    {
-        PC1->Possess(Snake2);
-    }
+    if (PC0 && Snake1) PC0->Possess(Snake1);
+    if (PC1 && Snake2) PC1->Possess(Snake2);
 }
 
 void ASnakeGameMode::TriggerGameOver()

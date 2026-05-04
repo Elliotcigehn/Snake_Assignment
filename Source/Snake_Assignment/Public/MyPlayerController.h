@@ -22,7 +22,6 @@ public:
 	virtual void PlayerTick(float DeltaTime) override;
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
-
 	void RestartLevel();
 
 	void TogglePause();
@@ -31,10 +30,10 @@ protected:
 	void Turn(const FInputActionValue& Value);
 	void SpawnPlayer(const FInputActionValue& Value);
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float movementSpeed = 500.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float turnSpeed = 120.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")

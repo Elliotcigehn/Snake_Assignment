@@ -29,7 +29,7 @@ public:
     UPROPERTY(EditAnywhere, Category = "Grid")
     float TileSize = 100.f;
 
-    UPROPERTY(EditAnywhere, Category = "Grid")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
 	float ObstacleChance = 0.2f;
 
     UPROPERTY(EditAnywhere, Category = "Grid")
